@@ -36,6 +36,5 @@ public class TransactionRequest {
     private Double latitude;
     private Double longitude;
 
-    @NotNull
-    private Long eventTimeEpochMs;  // client event timestamp
+//    private Long eventTimeEpochMs;  // client event timestamp
 }

@@ -1,6 +1,15 @@
 spring:
   application:
     name: gateway-api
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+fraud:
+  kafka:
+    tx-topic: tx.incoming
+
 server:
   port: 8080
 
@@ -8,3 +17,5 @@ logging:
   level:
     root: info
     com.dk.gateway_api : DEBUG
+    org.apache.kafka: DEBUG
+    org.springframework.kafka: DEBUG
