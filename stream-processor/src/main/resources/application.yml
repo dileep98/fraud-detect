@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: stream-processor
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: fraud-stream-processor
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+  datasource:
+    url: jdbc:postgresql://localhost:5432/frauddb
+    username: fraud
+    password: fraudpwd
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+fraud:
+  kafka:
+    tx-topic: tx.incoming
+    group-id: stream-processor-group
