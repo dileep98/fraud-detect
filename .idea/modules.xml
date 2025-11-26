@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/fraud-detect.iml" filepath="$PROJECT_DIR$/.idea/fraud-detect.iml" />
       <module fileurl="file://$PROJECT_DIR$/gateway-api/gateway-api.iml" filepath="$PROJECT_DIR$/gateway-api/gateway-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/stream-processor/stream-processor.iml" filepath="$PROJECT_DIR$/stream-processor/stream-processor.iml" />
     </modules>
   </component>
 </project>
