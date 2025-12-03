@@ -1,3 +1,4 @@
+
 spring:
   application:
     name: stream-processor
@@ -20,7 +21,11 @@ spring:
         format_sql: true
     show-sql: true
 
+server:
+  port: 8082
+
 fraud:
   kafka:
     tx-topic: tx.incoming
     group-id: stream-processor-group
+
