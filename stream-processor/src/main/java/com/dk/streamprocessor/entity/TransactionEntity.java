@@ -45,4 +45,14 @@ public class TransactionEntity {
 
     @Column(name = "event_time", nullable = false)
     private Instant eventTime;
+
+    // fraud-related
+    @Column(name = "score")
+    private Integer score;
+
+    @Column(name = "decision")
+    private String decision; // APPROVE/REVIEW/DECLINE
+
+    @Column(name = "reason")
+    private String reason;
 }
