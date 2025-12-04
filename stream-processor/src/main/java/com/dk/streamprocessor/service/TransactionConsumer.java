@@ -5,7 +5,9 @@ import com.dk.streamprocessor.entity.TransactionEntity;
 import com.dk.streamprocessor.messaging.TransactionEvent;
 import com.dk.streamprocessor.repository.AlertRepository;
 import com.dk.streamprocessor.repository.TransactionRepository;
-import com.dk.streamprocessor.rules.SimpleRuleEngine;
+import com.dk.streamprocessor.rules.Decision;
+import com.dk.streamprocessor.rules.RuleEngine;
+import com.dk.streamprocessor.rules.RuleResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,13 +15,15 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class TransactionConsumer {
 
     private final ObjectMapper objectMapper;
-    private final SimpleRuleEngine simpleRuleEngine;
+    private final RuleEngine ruleEngine;
     private final TransactionRepository transactionRepository;
     private final AlertRepository alertRepository;
 
@@ -42,7 +46,6 @@ public class TransactionConsumer {
                     event.getChannel()
             );
 
-            SimpleRuleEngine.FraudDecision decision = simpleRuleEngine.evaluate(event);
 
             TransactionEntity transactionEntity = new TransactionEntity();
             transactionEntity.setTxId(event.getTxId());
@@ -53,24 +56,32 @@ public class TransactionConsumer {
             transactionEntity.setChannel(event.getChannel());
             transactionEntity.setIp(event.getIp());
             transactionEntity.setDeviceId(event.getDeviceId());
-            transactionEntity.setEventTime(event.getEventTime());
-            transactionEntity.setScore(decision.score());
-            transactionEntity.setDecision(decision.decision());
-            transactionEntity.setReason(decision.reason());
+            transactionEntity.setEventTime(event.getEventTime() != null ? event.getEventTime() : Instant.now());
+
+            RuleResult ruleResult = ruleEngine.evaluate(transactionEntity);
+            int score = ruleResult.getScoreDelta();
+            Decision decision = ruleEngine.decide(score);
+
+            transactionEntity.setScore(score);
+            transactionEntity.setDecision(decision.name());
+            transactionEntity.setReason(ruleResult.reasonsAsString());
+
 
             transactionRepository.save(transactionEntity);
 
-            if(!"APPROVE".equals(decision.decision())){ // In case I add more decisions other than "APPROVE"
+            if(decision != Decision.APPROVE){ // In case I add more decisions other than "APPROVE"
                 AlertEntity alertEntity = new AlertEntity();
                 alertEntity.setTxId(event.getTxId());
-                alertEntity.setDecision(decision.decision());
-                alertEntity.setScore(decision.score());
-                alertEntity.setReason(decision.reason());
+                alertEntity.setDecision(decision.name());
+                alertEntity.setScore(score);
+                alertEntity.setReason(ruleResult.reasonsAsString());
                 alertRepository.save(alertEntity);
+            } else {
+                log.info("Approved tx {} with score {}", transactionEntity.getTxId(), score);
             }
 
-            log.info("Processed tx={}, decision={}, score={}, reason={}",
-                    event.getTxId(), decision.decision(), decision.score(), decision.reason());
+            log.info("Created alert for tx {}: score={}, decision={}, reasons={}",
+                    transactionEntity.getTxId(), score, decision, ruleResult.reasonsAsString());
 
 
         }catch (Exception e){
