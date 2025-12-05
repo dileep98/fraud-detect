@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -23,6 +24,8 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<Void> ingestTransaction(@Valid @RequestBody TransactionRequest request) {
 
+        String txId = UUID.randomUUID().toString();
+        request.setTxId(txId);
         TransactionEvent event = new TransactionEvent(
                 request.getTxId(),
                 request.getAccountId(),

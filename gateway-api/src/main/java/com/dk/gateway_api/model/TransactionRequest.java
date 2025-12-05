@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 @Data
 public class TransactionRequest {
 
-    @NotBlank
     private String txId;
 
     @NotBlank
