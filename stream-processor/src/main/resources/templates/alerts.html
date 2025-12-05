@@ -6,17 +6,39 @@
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         h1 { margin-bottom: 10px; }
+        .filters { margin-bottom: 15px; }
         table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 8px; font-size: 13px; }
         th { background: #f4f4f4; text-align: left; }
         tr:nth-child(even) { background: #fafafa; }
         .badge-REVIEW { color: #b58900; font-weight: bold; }
         .badge-DECLINE { color: #dc322f; font-weight: bold; }
         .badge-APPROVE { color: #2aa198; font-weight: bold; }
+        a { text-decoration: none; color: #0366d6; }
+        a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
 <h1>Fraud Alerts</h1>
+
+<div class="filters">
+    <form method="get" th:action="@{/ui/alerts}">
+        <label for="decision">Filter by decision:</label>
+        <select id="decision" name="decision">
+            <option value=""
+                    th:selected="${selectedDecision == null or selectedDecision == ''}">
+                All
+            </option>
+            <option th:value="'REVIEW'" th:selected="${selectedDecision == 'REVIEW'}">REVIEW</option>
+            <option th:value="'DECLINE'" th:selected="${selectedDecision == 'DECLINE'}">DECLINE</option>
+            <option th:value="'APPROVE'" th:selected="${selectedDecision == 'APPROVE'}">APPROVE</option>
+        </select>
+        <button type="submit">Apply</button>
+        <a th:href="@{/ui/alerts}">Reset</a>
+        &nbsp;|&nbsp;
+        <a th:href="@{/ui/transactions}">View Transactions</a>
+    </form>
+</div>
 
 <table>
     <thead>
