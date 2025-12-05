@@ -21,6 +21,7 @@
 <body>
 <h1>Fraud Alerts</h1>
 
+
 <div class="filters">
     <form method="get" th:action="@{/ui/alerts}">
         <label for="decision">Filter by decision:</label>
@@ -37,6 +38,8 @@
         <a th:href="@{/ui/alerts}">Reset</a>
         &nbsp;|&nbsp;
         <a th:href="@{/ui/transactions}">View Transactions</a>
+        &nbsp;|&nbsp;
+        <a th:href="@{/ui/dashboard}">Dashboard</a>
     </form>
 </div>
 

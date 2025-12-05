@@ -1,6 +1,8 @@
 package com.dk.streamprocessor.rules;
 
+import com.dk.streamprocessor.config.FraudRulesProperties;
 import com.dk.streamprocessor.entity.TransactionEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -10,13 +12,11 @@ public class RuleEngine {
 
 
     private final List<RiskRule> rules;
+    private final FraudRulesProperties.Decision decisionProps;
 
-    public RuleEngine() {
-        this.rules = List.of(
-                new HighAmountRule(),
-                new CardNotPresentRule(),
-                new NightHighAmountRule()
-        );
+    public RuleEngine(List<RiskRule> rules, FraudRulesProperties fraudRulesProperties) {
+        this.rules = rules;
+        this.decisionProps = fraudRulesProperties.getDecision();
     }
 
     public RuleResult evaluate(TransactionEntity tx) {
@@ -28,10 +28,12 @@ public class RuleEngine {
     }
 
     public Decision decide(int score) {
-        // can tweak thresholds as we like
-        if (score >= 60) {
+        int declineMin = decisionProps.getDeclineMinScore();
+        int reviewMin = decisionProps.getReviewMinScore();
+
+        if (score >= declineMin) {
             return Decision.DECLINE;
-        } else if (score >= 30) {
+        } else if (score >= reviewMin) {
             return Decision.REVIEW;
         } else {
             return Decision.APPROVE;

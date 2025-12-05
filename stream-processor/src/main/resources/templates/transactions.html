@@ -21,6 +21,8 @@
 <body>
 <h1>Transactions</h1>
 
+
+
 <div class="filters">
   <form method="get" th:action="@{/ui/transactions}">
     <label for="accountId">Filter by Account ID:</label>
@@ -30,6 +32,8 @@
     <a th:href="@{/ui/transactions}">Reset</a>
     &nbsp;|&nbsp;
     <a th:href="@{/ui/alerts}">View Alerts</a>
+      &nbsp;|&nbsp;
+      <a th:href="@{/ui/dashboard}">Dashboard</a>
   </form>
 </div>
 

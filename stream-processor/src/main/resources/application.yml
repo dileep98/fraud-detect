@@ -28,4 +28,31 @@ fraud:
   kafka:
     tx-topic: tx.incoming
     group-id: stream-processor-group
+  rules:
+    decision:
+      review-min-score: 30
+      decline-min-score: 60
+
+    high-amount:
+      enabled: true
+      threshold: 1000        # amount >= 1000
+      score: 40
+
+    card-not-present:
+      enabled: true
+      threshold: 500         # amount >= 500
+      score: 25
+
+    night-high-amount:
+      enabled: true
+      min-amount: 200        # amount >= 200
+      start-hour: 0          # 00:00
+      end-hour: 5            # 05:59
+      score: 15
+
+    velocity:
+      enabled: true
+      window-minutes: 5      # look-back window
+      max-count: 3           # if >= 3 tx in window -> risk
+      score: 30
 
