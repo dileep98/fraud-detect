@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Transactions</title>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { margin-bottom: 10px; }
+    .filters { margin-bottom: 15px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; font-size: 13px; }
+    th { background: #f4f4f4; text-align: left; }
+    tr:nth-child(even) { background: #fafafa; }
+    .badge-APPROVE { color: #2aa198; font-weight: bold; }
+    .badge-REVIEW { color: #b58900; font-weight: bold; }
+    .badge-DECLINE { color: #dc322f; font-weight: bold; }
+    a { text-decoration: none; color: #0366d6; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<h1>Transactions</h1>
+
+<div class="filters">
+  <form method="get" th:action="@{/ui/transactions}">
+    <label for="accountId">Filter by Account ID:</label>
+    <input id="accountId" name="accountId"
+           th:value="${accountId}">
+    <button type="submit">Apply</button>
+    <a th:href="@{/ui/transactions}">Reset</a>
+    &nbsp;|&nbsp;
+    <a th:href="@{/ui/alerts}">View Alerts</a>
+  </form>
+</div>
+
+<table>
+  <thead>
+  <tr>
+    <th>Tx ID</th>
+    <th>Account</th>
+    <th>Merchant</th>
+    <th>Amount</th>
+    <th>Currency</th>
+    <th>Channel</th>
+    <th>Score</th>
+    <th>Decision</th>
+    <th>Reason(s)</th>
+    <th>Event Time</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr th:each="t : ${transactions}">
+<!--    <td th:text="${t.txId}"></td>-->
+    <td>
+      <a th:href="@{'/api/v1/transactions/' + ${t.txId}}"
+         th:text="${t.txId}"></a>
+    </td>
+    <td th:text="${t.accountId}"></td>
+    <td th:text="${t.merchantId}"></td>
+    <td th:text="${t.amount}"></td>
+    <td th:text="${t.currency}"></td>
+    <td th:text="${t.channel}"></td>
+    <td th:text="${t.score}"></td>
+    <td>
+            <span th:text="${t.decision}"
+                  th:class="'badge-' + ${t.decision}"></span>
+    </td>
+    <td th:text="${t.reason}"></td>
+    <td th:text="${t.eventTime}"></td>
+  </tr>
+  </tbody>
+</table>
+
+</body>
+</html>

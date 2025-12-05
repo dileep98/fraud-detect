@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Fraud Alerts</title>
+    <meta charset="UTF-8"/>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { margin-bottom: 10px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; font-size: 14px; }
+        th { background: #f4f4f4; text-align: left; }
+        tr:nth-child(even) { background: #fafafa; }
+        .badge-REVIEW { color: #b58900; font-weight: bold; }
+        .badge-DECLINE { color: #dc322f; font-weight: bold; }
+        .badge-APPROVE { color: #2aa198; font-weight: bold; }
+    </style>
+</head>
+<body>
+<h1>Fraud Alerts</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Tx ID</th>
+        <th>Score</th>
+        <th>Decision</th>
+        <th>Reason(s)</th>
+        <th>Created At</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="a : ${alerts}">
+        <td th:text="${a.id}"></td>
+        <td>
+            <a th:href="@{'/api/v1/transactions/' + ${a.txId}}"
+               th:text="${a.txId}"></a>
+        </td>
+        <td th:text="${a.score}"></td>
+        <td>
+            <span th:text="${a.decision}"
+                  th:class="'badge-' + ${a.decision}"></span>
+        </td>
+        <td th:text="${a.reason}"></td>
+        <td th:text="${a.createdAt}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

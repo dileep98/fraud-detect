@@ -15,8 +15,6 @@ import java.time.Instant;
 @Entity
 @Table(name = "transactions")
 @Data
-@Getter
-@Setter
 public class TransactionEntity {
 
     @Id
