@@ -3,10 +3,10 @@ package com.dk.gateway_api.controller;
 import com.dk.gateway_api.messaging.TransactionEvent;
 import com.dk.gateway_api.messaging.TransactionProducer;
 import com.dk.gateway_api.model.TransactionRequest;
+import com.dk.gateway_api.model.TransactionResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,25 +22,25 @@ public class TransactionController {
     private final TransactionProducer producer;
 
     @PostMapping
-    public ResponseEntity<Void> ingestTransaction(@Valid @RequestBody TransactionRequest request) {
+    public ResponseEntity<TransactionResponse> ingestTransaction(@Valid @RequestBody TransactionRequest request) {
 
         String txId = UUID.randomUUID().toString();
-        request.setTxId(txId);
+
         TransactionEvent event = new TransactionEvent(
-                request.getTxId(),
-                request.getAccountId(),
-                request.getMerchantId(),
-                request.getAmount(),
-                request.getCurrency(),
-                request.getIp(),
-                request.getDeviceId(),
-                request.getChannel(),
+                txId,
+                request.accountId(),
+                request.merchantId(),
+                request.amount(),
+                request.currency(),
+                request.ip(),
+                request.deviceId(),
+                request.channel(),
                 Instant.now()
         );
 
-        log.info("Publishing tx {} to Kafka topic tx.incoming", request.getTxId());
+        log.info("Publishing tx {} to Kafka topic tx.incoming", txId);
         producer.send(event);
 
-        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        return ResponseEntity.ok(new TransactionResponse(txId, "ACCEPTED"));
     }
 }

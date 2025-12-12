@@ -12,7 +12,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="fraud-detect" target="1.5" />
-      <module name="gateway-api" target="1.5" />
+      <module name="gateway-api" target="16" />
       <module name="stream-processor" target="17" />
     </bytecodeTargetLevel>
   </component>

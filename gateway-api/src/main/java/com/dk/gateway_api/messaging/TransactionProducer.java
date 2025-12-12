@@ -2,10 +2,12 @@ package com.dk.gateway_api.messaging;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class TransactionProducer {
 
@@ -24,9 +26,10 @@ public class TransactionProducer {
     public void send(TransactionEvent event) {
         try {
             String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(topic, event.getTxId(), payload);
+            kafkaTemplate.send(topic, event.txId(), payload);
+            log.info("Published tx {} to Kafka", event.txId());
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize TransactionEvent", e);
+            log.error("Failed to publish event {}", event, e);
         }
     }
 }
