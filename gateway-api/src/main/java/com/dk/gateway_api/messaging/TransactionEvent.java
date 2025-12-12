@@ -12,5 +12,5 @@ public record TransactionEvent(
         String channel,
         String ip,
         String deviceId,
-        Instant eventTime
+        Instant timestamp
 ) {}

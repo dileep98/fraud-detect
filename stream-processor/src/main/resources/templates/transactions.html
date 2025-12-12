@@ -16,6 +16,18 @@
     .badge-DECLINE { color: #dc322f; font-weight: bold; }
     a { text-decoration: none; color: #0366d6; }
     a:hover { text-decoration: underline; }
+
+    .pagination {
+        margin-top: 10px;
+        font-size: 13px;
+    }
+    .pagination a {
+        text-decoration: none;
+        color: #0366d6;
+    }
+    .pagination a:hover {
+        text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -74,6 +86,28 @@
   </tr>
   </tbody>
 </table>
+
+<div class="pagination" th:if="${page.totalPages > 1}">
+    <span>Page <span th:text="${page.number + 1}"></span> of
+          <span th:text="${page.totalPages}"></span>
+    </span>
+    <div>
+        <a th:if="${page.hasPrevious()}"
+           th:href="@{/ui/transactions(page=${page.number - 1}, size=${page.size}, accountId=${accountId})}">
+            &laquo; Prev
+        </a>
+        <span th:unless="${page.hasPrevious()}">&laquo; Prev</span>
+
+        &nbsp;|&nbsp;
+
+        <a th:if="${page.hasNext()}"
+           th:href="@{/ui/transactions(page=${page.number + 1}, size=${page.size}, accountId=${accountId})}">
+            Next &raquo;
+        </a>
+        <span th:unless="${page.hasNext()}">Next &raquo;</span>
+    </div>
+</div>
+
 
 </body>
 </html>
