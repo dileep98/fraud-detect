@@ -22,7 +22,7 @@ public class TransactionUiController {
     public String transactionsPage(
             @RequestParam(value = "accountId", required = false) String accountId,
             @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size,
+            @RequestParam(value = "size", defaultValue = "2") int size,
             Model model
     ) {
         if (page < 0) page = 0;

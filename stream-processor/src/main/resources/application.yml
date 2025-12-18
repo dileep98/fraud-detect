@@ -56,3 +56,11 @@ fraud:
       max-count: 3           # if >= 3 tx in window -> risk
       score: 30
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always

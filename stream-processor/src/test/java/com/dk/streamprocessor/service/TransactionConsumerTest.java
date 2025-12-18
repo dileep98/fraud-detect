@@ -9,11 +9,13 @@ import com.dk.streamprocessor.rules.Decision;
 import com.dk.streamprocessor.rules.RuleEngine;
 import com.dk.streamprocessor.rules.RuleResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -38,8 +40,20 @@ class TransactionConsumerTest {
     @Mock
     RuleEngine ruleEngine;
 
-    @InjectMocks
+    // no @InjectMocks now, we construct it manually
     TransactionConsumer consumer;
+
+    @BeforeEach
+    void setUp() {
+        MeterRegistry meterRegistry = new SimpleMeterRegistry();
+        consumer = new TransactionConsumer(
+                objectMapper,
+                ruleEngine,
+                transactionRepository,
+                alertRepository,
+                meterRegistry
+        );
+    }
 
     private TransactionEvent sampleEvent() {
         return new TransactionEvent(
@@ -64,11 +78,9 @@ class TransactionConsumerTest {
         TransactionEvent event = sampleEvent();
         String json = "{\"dummy\":\"json\"}";
 
-        // ObjectMapper maps JSON -> TransactionEvent
         when(objectMapper.readValue(json, TransactionEvent.class))
                 .thenReturn(event);
 
-        // RuleEngine: score 10 -> APPROVE
         RuleResult ruleResult = new RuleResult();
         ruleResult.add(10, "SOME_REASON");
 
@@ -76,11 +88,11 @@ class TransactionConsumerTest {
                 .thenReturn(ruleResult);
         when(ruleEngine.decide(10)).thenReturn(Decision.APPROVE);
 
+        // if TransactionEvent is a record, use event.txId()
         ConsumerRecord<String, String> record = recordForEvent(event.getTxId(), json);
 
         consumer.onMessage(record);
 
-        // verify transaction saved
         ArgumentCaptor<TransactionEntity> txCaptor =
                 ArgumentCaptor.forClass(TransactionEntity.class);
         verify(transactionRepository, times(1)).save(txCaptor.capture());
@@ -92,7 +104,6 @@ class TransactionConsumerTest {
         assertEquals("APPROVE", savedTx.getDecision());
         assertTrue(savedTx.getReason().contains("SOME_REASON"));
 
-        // no alert should be saved
         verify(alertRepository, never()).save(any(AlertEntity.class));
     }
 
@@ -106,8 +117,7 @@ class TransactionConsumerTest {
 
         RuleResult ruleResult = new RuleResult();
         ruleResult.add(45, "HIGH_AMOUNT");
-        ruleResult.add(30, "VELOCITY");
-        // total score = 75
+        ruleResult.add(30, "VELOCITY"); // total 75
 
         when(ruleEngine.evaluate(any(TransactionEntity.class)))
                 .thenReturn(ruleResult);
@@ -117,7 +127,6 @@ class TransactionConsumerTest {
 
         consumer.onMessage(record);
 
-        // transaction saved
         ArgumentCaptor<TransactionEntity> txCaptor =
                 ArgumentCaptor.forClass(TransactionEntity.class);
         verify(transactionRepository, times(1)).save(txCaptor.capture());
@@ -130,7 +139,6 @@ class TransactionConsumerTest {
         assertTrue(savedTx.getReason().contains("HIGH_AMOUNT"));
         assertTrue(savedTx.getReason().contains("VELOCITY"));
 
-        // alert saved
         ArgumentCaptor<AlertEntity> alertCaptor =
                 ArgumentCaptor.forClass(AlertEntity.class);
         verify(alertRepository, times(1)).save(alertCaptor.capture());
@@ -151,10 +159,8 @@ class TransactionConsumerTest {
         when(objectMapper.readValue(badJson, TransactionEvent.class))
                 .thenThrow(new RuntimeException("parse error"));
 
-        // should not throw out of the method
         assertDoesNotThrow(() -> consumer.onMessage(record));
 
-        // and should not attempt to save anything
         verify(transactionRepository, never()).save(any(TransactionEntity.class));
         verify(alertRepository, never()).save(any(AlertEntity.class));
     }
